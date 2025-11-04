@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_2" data-name="Calque 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 325.69 73.19">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #f8f8f6;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        stroke: #000;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #3b5ba5;
+      }
+
+      .cls-4 {
+        fill: #eeca39;
+      }
+    </style>
+  </defs>
+  <g id="icone-boite-lunette">
+    <g id="boite-ouverte">
+      <rect class="cls-3" x="4.07" y=".5" width="101.24" height="51.02" rx="15.31" ry="15.31"/>
+      <path class="cls-1" d="M25.2,9.46h15.33c6.3,0,11.42,5.12,11.42,11.42v8.53c0,8.81-7.15,15.96-15.96,15.96h-5.12c-9.44,0-17.1-7.66-17.1-17.1v-7.39c0-6.3,5.12-11.42,11.42-11.42Z"/>
+      <path class="cls-1" d="M69.23,9.46h15.33c6.3,0,11.42,5.12,11.42,11.42v8.53c0,8.81-7.15,15.96-15.96,15.96h-5.12c-9.44,0-17.1-7.66-17.1-17.1v-7.39c0-6.3,5.12-11.42,11.42-11.42Z"/>
+      <path class="cls-4" d="M3.38,51.52h100.63c1.59,0,2.88,1.29,2.88,2.88h0c0,10.09-8.19,18.28-18.28,18.28H18.78C8.69,72.69.5,64.5.5,54.41H.5c0-1.59,1.29-2.88,2.88-2.88Z"/>
+      <line class="cls-2" x1="41.4" y1="9.46" x2="68.35" y2="9.46"/>
+      <line class="cls-2" x1="51.95" y1="19.83" x2="57.81" y2="19.83"/>
+      <line class="cls-2" x1="66.45" y1="23.51" x2="71.91" y2="18.09"/>
+      <line class="cls-2" x1="68.99" y1="28.52" x2="79.42" y2="18.09"/>
+      <line class="cls-2" x1="22.28" y1="23.51" x2="27.74" y2="18.09"/>
+      <line class="cls-2" x1="24.81" y1="28.52" x2="35.25" y2="18.09"/>
+      <path class="cls-2" d="M101.56,56.67c-.78,6.12-6.26,10.46-12.23,9.69"/>
+    </g>
+    <g id="boite-fermer">
+      <rect class="cls-4" x="223.95" y="3.01" width="101.24" height="51.02" rx="15.31" ry="15.31"/>
+      <path class="cls-2" d="M317.76,38.38c-.78,6.12-6.26,10.46-12.23,9.69"/>
+    </g>
+  </g>
+</svg>
