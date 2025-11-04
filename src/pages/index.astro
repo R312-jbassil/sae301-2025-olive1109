@@ -1,11 +1,120 @@
 ---
-import Welcome from '../components/Welcome.astro';
+// ...existing code...
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { Image } from 'astro:assets';
+import HeroImage from '../../public/image/fond.webp';
+import Chien  from '../../public/image/lunette-chien.webp';
+import Custom  from '../../public/image/lunette-custom.webp';
+import Ia  from '../../public/image/lunette-ia.webp';
 ---
-
 <Layout>
-	<Welcome />
+  <!-- HERO -->
+	<section class="relative w-full h-screen">
+		<!-- background image -->
+		<Image
+		src={HeroImage}
+		alt="Hero Image"
+		class="absolute inset-0 w-full h-full object-cover"
+		priority
+		/>
+		<!-- primary overlay -->
+		<div class="absolute inset-0 bg-primary/75 mix-blend-multiply pointer-events-none"></div>
+
+			<!-- centered content -->
+		<div class="relative z-10 max-w-4xl mx-auto h-full flex flex-col items-center justify-center px-6 text-center">
+			<h1 class="font-Playfair-Display text-4xl md:text-6xl lg:text-7xl text-neutral leading-tight italic">
+				Créez Vos Lunettes Uniques
+			</h1>
+			<p class="mt-4 text-sm md:text-lg text-neutral/85 max-w-2xl">
+				Personnalisez chaque détail et exprimez votre style avec nos options de design illimitées grâce à l’IA
+			</p>
+			<div class="mt-6">
+				<a class="btn btn-secondary btn-lg" href="/create">Commencez la personnalisation</a>
+			</div>
+		</div>
+  	</section>
+
+	<section class="relative -mt-20 z-20">
+		<div class="bg-base-100 px-6 py-12 font-Manrope">
+			<h2 class="text-4xl font-Manrope text-primary text-center">Nos Modèles Vedettes</h2>
+			<p class="text-center text-primary/70 mt-2">Découvrez nos designs les plus populaires</p>
+
+			<div class="flex justify-center mt-8">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-center">
+
+					<article class="card bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition">
+						<figure class="h-56 overflow-hidden">
+						<Image src={Chien} alt="Lunette Chien" class="w-full h-full object-cover rounded-xl" />
+						</figure>
+					<div class="p-4 text-center">
+						<h3 class="text-base font-Manrope">Édition Limitée</h3>
+						<p class="text-sm text-primary mt-2 font-semibold">129,99€</p>
+					</div>
+					</article>
+
+					<article class="card bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition">
+					<a href="/bibliotheque" class="block">
+						<figure class="h-56 overflow-hidden relative">
+						<Image src={Custom} alt="Lunette Custom" class="w-full h-full object-cover rounded-xl" />
+						<span class="absolute top-2 right-2 bg-yellow-300 text-xs font-semibold px-2 py-1 rounded-full">Personnalisable</span>
+						</figure>
+					</a>
+					<div class="p-4 text-center">
+						<h3 class="text-base">Design Custom</h3>
+						<a href="/bibliotheque" class="text-sm text-primary font-semibold mt-2">Créez votre paire</a>
+					</div>
+					</article>
+
+				</div>
+			</div>
+		</div>
+	</section>
+
+
+	<section class="max-w-6xl mx-auto mt-12 px-6 mb-16 bg-primary text-primary-content rounded-lg p-8 shadow-lg">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+			<div class="text-primary-content p-8">
+				<h3 class="text-2xl font-Playfair-Display mb-4">Et si l’IA vous aidez ?</h3>
+				<p class="mb-6">Avec notre outil de personnalisation avancé, créez des lunettes qui vous ressemblent vraiment. Choisissez les couleurs, les matériaux, ajoutez votre texte personnalisé et bien plus encore.</p>
+
+				<ul class="space-y-3">
+				<li class="flex items-start gap-3">
+					<span class="badge badge-secondary">1</span>
+					<div>
+					<strong>Choisissez votre modèle</strong>
+					<div class="text-sm text-primary-content/90">Importer une photo de la monture que vous voulez</div>
+					</div>
+				</li>
+				<li class="flex items-start gap-3">
+					<span class="badge badge-secondary">2</span>
+					<div>
+					<strong>Personnalisez chaque détail</strong>
+					<div class="text-sm text-primary-content/90">Couleurs, matériaux, verre, branche et plus encore</div>
+					</div>
+				</li>
+				<li class="flex items-start gap-3">
+					<span class="badge badge-secondary">3</span>
+					<div>
+					<strong>Recevez votre création</strong>
+					<div class="text-sm text-primary-content/90">Fabriquées avec soin et livrées chez vous sous 2-3 semaines</div>
+					</div>
+				</li>
+				</ul>
+
+				<div class="mt-6">
+					<a class="btn btn-secondary" href="/generator">Créer Maintenant</a>
+				</div>
+			</div>
+
+			<div class="relative">
+				<div class="bg-white rounded-lg shadow-xl overflow-hidden relative">
+					<Image src={Ia} alt="Lunette IA" class="w-full h-full object-cover" />
+					<!-- badge placé en bas-gauche ; coins haut-gauche et bas-droit non arrondis -->
+					<p class="w-30 h-auto absolute left-0 bottom-0 z-10 badge badge-secondary text-sm rounded-none rounded-tr-md rounded-bl-md p-4">
+					+ de 10.000 designs créés
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
 </Layout>

@@ -1,0 +1,37 @@
+---
+import Logo from '../../public/SVG/logo.svg';
+---
+<footer class="bg-base-300 text-base-content font-Manrope">
+  <div class="max-w-6xl mx-auto px-6 py-10 gap-20">
+    <div class="flex items-start gap-8">
+      <!-- logo -->
+      <div class="w-36 shrink-0">
+        <Logo class="w-full h-auto" />
+      </div>
+
+      <div class="flex-1 flex items-start gap-8">
+        <nav aria-label="main" class="text-sm font-Playfair-Display text-neutral">
+          <ul class="space-y-2">
+            <li><a href="/" class="hover:text-secondary transition-colors">Accueil</a></li>
+            <li><a href="/" class="hover:text-secondary transition-colors">Nos lunettes</a></li>
+            <li><a href="/biblihoteque.astro" class="hover:text-secondary transition-colors">Ta paire !</a></li>
+          </ul>
+        </nav>
+
+        <div class="border-l border-base-100/20 pl-6">
+          <nav aria-label="legal" class="text-sm font-Playfair-Display text-neutral">
+            <ul class="space-y-2">
+              <li><a href="/mention-legale" class="hover:text-secondary transition-colors">Mention Légale</a></li>
+              <li><a href="/cookie" class="hover:text-secondary transition-colors">Cookie</a></li>
+              <li><a href="/contact" class="hover:text-secondary transition-colors">Nous Contacter</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-xs text-neutral text-center mt-8 font-Manrope">
+      © 2025 TaVue — Tous droits réservés — Dans le cadre d’un travail en BUT MMI
+    </p>
+  </div>
+</footer>
