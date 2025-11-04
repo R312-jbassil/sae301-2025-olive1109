@@ -19,9 +19,10 @@ export const POST = async ({ request, cookies }) => {
             // ignore cookie parsing errors
             console.warn('saveSVG: cookie parse warning', e?.message || e);
         }
-
+        console.log(data);
+        
         // Basic validation
-        if (!data.name || !data.code) {
+        if (!data.nom_model || !data.svg_code) {
             return new Response(JSON.stringify({ success: false, error: 'Missing name or code' }), {
                 headers: { "Content-Type": "application/json" },
                 status: 400,
@@ -29,7 +30,7 @@ export const POST = async ({ request, cookies }) => {
         }
 
         // Try to parse svg code if it's a JSON string, otherwise keep as-is
-        let svg_code = data.code;
+        let svg_code = data.svg_code;
         if (typeof svg_code === 'string') {
             try {
                 const parsed = JSON.parse(svg_code);
@@ -41,7 +42,7 @@ export const POST = async ({ request, cookies }) => {
 
         // Build payload for the Lunette collection (fields based on pocketbase-types.ts)
         const payload = {
-            nom_model: data.name,
+            nom_model: data.nom_model,
             svg_code: svg_code,
             date: data.date || new Date().toISOString(),
             users: data.user || null

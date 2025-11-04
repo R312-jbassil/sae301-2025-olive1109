@@ -1,0 +1,29 @@
+---
+const { svg = '<svg xmlns="http://www.w3.org/2000/svg"></svg>', name = 'Sans nom', date = null } = Astro.props;
+
+function formatDate(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
+  } catch {
+    return String(d);
+  }
+}
+---
+<article class="w-full max-w-sm bg-white/90 rounded-xl shadow-md overflow-hidden border border-base-200">
+  <div class="h-44 bg-base-100 flex items-center justify-center p-3 overflow-hidden">
+    <!-- affiche le SVG passé en prop -->
+    <div class="w-full h-full flex items-center justify-center" innerHTML={svg}></div>
+  </div>
+
+  <div class="p-4">
+    <h3 class="text-base font-Playfair-Display text-secondary mb-1 truncate" title={name}>{name}</h3>
+    <p class="text-xs text-base/70 mb-3">{formatDate(date)}</p>
+
+    <div class="flex gap-2">
+      <button class="btn btn-sm btn-outline btn-primary flex-1">Voir</button>
+      <button class="btn btn-sm btn-ghost">Télécharger</button>
+    </div>
+  </div>
+</article>

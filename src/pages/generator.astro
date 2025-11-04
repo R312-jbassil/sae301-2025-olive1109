@@ -2,176 +2,193 @@
 import Layout from '../layouts/Layout.astro';
 import { Image } from 'astro:assets';
 import HeroImage from '../../public/image/fond.webp';
---- 
+---
 <Layout>
-  <main class="relative w-full min-h-screen">
-    <!-- background hero -->
+  <main class="relative w-full min-h-screen bg-[url('/image/fond.webp')] bg-cover bg-center font-Manrope">
     <Image src={HeroImage} alt="Hero Image" class="absolute inset-0 w-full h-full object-cover" priority />
     <div class="absolute inset-0 bg-primary/60 mix-blend-multiply pointer-events-none"></div>
+        <div class="relative z-10 max-w-6xl mx-auto pt-24 px-6 pb-16">
+        <h1 class="font-Playfair-Display text-3xl md:text-4xl lg:text-5xl text-neutral text-center mb-8">
+            Personnaliser Vos lunettes à votre image avec l'IA !
+        </h1>
 
-    <div class="relative z-20 max-w-6xl mx-auto pt-24 px-6">
-      <h1 class="font-Playfair-Display text-3xl md:text-4xl lg:text-5xl text-neutral text-center mb-8">
-        Personnaliser Vos lunettes à votre image avec l'IA !
-      </h1>
+        <div class="mx-auto bg-white/85 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-4xl">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-end">
+            <!-- Left: inputs + preview (spans 2 cols) -->
+            <div class="lg:col-span-2 space-y-6">
 
-      <div class="mx-auto max-w-4xl bg-white/85 backdrop-blur-md rounded-2xl shadow-xl p-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-end">
-          <!-- left: form + preview -->
-          <div class="lg:col-span-2 space-y-6">
-            <div>
-              <label class="sr-only">Votre question</label>
-              <div class="flex items-center gap-3">
-                <input id="user-prompt" type="text"
-                       class="input input-bordered flex-1 rounded-full h-12 px-4 bg-secondary/20 placeholder:text-primary/60"
-                       placeholder="Décris la paire de lunettes à générer (ex : monture ronde dorée, verres bleus)" />
-                <button id="send-button" type="button" class="btn btn-secondary ml-2">Envoyer</button>
-              </div>
-            </div>
+                <form class="w-full" onsubmit="event.preventDefault();">
+                    <div class="flex gap-4 items-center">
+                        <input id="user-prompt" type="text"
+                            class="input input-bordered flex-1 rounded-full h-12 px-4 bg-secondary/30 placeholder:text-base/70"
+                            placeholder="Décris la paire de lunettes à générer (ex : monture ronde dorée, verres bleus)" />
+                        <div class="flex flex-col">
+                        <button id="generate-button" type="button" class="btn btn-primary px-6">Générer</button>
+                        </div>
+                    </div>
 
+                    
+                </form>
 
-            <!-- SVG preview -->
-            <div class="bg-primary/50 from-base-200 to-base-100 rounded-xl flex items-center justify-center min-h-[240px] border border-base-200">
-              <div id="svg-container" class="flex items-center justify-center w-full h-full"></div>
-            </div>
-
-            <!-- name + save -->
-            <div class="">
-              <div class="flex-1">
-                <label class="text-sm block mb-1">Donne un nom à ta création pour y revenir plus tard</label>
-              </div>
-              <div class="flex flex-col md:flex-row md:items-center gap-4">
-                <input id="svg-name" type="text" class="input input-bordered w-full" placeholder="Nom du modèle" />
-                <button id="save-svg" type="button" class="btn btn-secondary w-full md:w-auto">Enregistrer</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- right: actions -->
-          <div class="space-y-6">
-            <div class="bg-white rounded-lg shadow p-4 flex flex-col items-flex-start gap-4">
-                <div class="gap-2">
-                    <div class="text-sm ">Ta création te convient ?</div>
-                    <a class="text-sm text-primary/90">Passe commande !!</a>
+                <!-- SVG preview -->
+                <div class="bg-primary/40 from-base-200 to-base-100 rounded-xl flex items-center justify-center min-h-[280px] border border-base-200 overflow-hidden">
+                <div id="svg-container" class="w-full h-full flex items-center justify-center p-6"></div>
                 </div>
-                <button id="add-to-cart" class="btn btn-primary w-full flex items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 6h12l-2-6M10 21a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
-                  Ajouter au panier
-                </button>
+
+                <!-- name + save -->
+                <div class="md:flex-row gap-4 items-center mt-4">
+                    <div class="flex-1">
+                        <label class="text-sm text-base/80 block mb-1">Donne un nom à ta création pour y revenir plus tard</label>
+                    </div>
+                    <div class="flex-col gap-4">
+                        <input id="svg-name" type="text" class="input input-bordered w-auto" placeholder="Nom du modèle"/>
+                        <button id="save-svg" type="button" class="btn btn-secondary w-full md:w-auto">Enregistrer</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="text-xs">
-              <p>Informations : livraison 2-3 semaines · Fabrication soignée</p>
+            <!-- Right: actions / commande -->
+            <div class="space-y-2">
+
+                <div>
+                    <h4 class="font-Manrope">Prix : En fonction des options choisies</h4>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-4 flex flex-col items-start gap-4">
+                    <div class="gap-2">
+                        <div class="text-sm text-base/80">Ta création te convient ?</div>
+                        <a class="text-sm text-primary/90">Passe commande !!</a>
+                    </div>
+                    <button id="add-to-cart" class="btn btn-primary w-full flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 6h12l-2-6M10 21a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+                        Ajouter au panier
+                    </button>
+                </div>
+                <div class="text-xs text-base/70">
+                    <p>Informations : livraison sous 2-3 semaines</p>
+                </div>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
+
+        <!-- code box (below card) -->
+        <div class="hidden max-w-4xl mx-auto mt-8">
+            <div class="bg-[#3b2179] rounded-xl p-6 text-white min-h-[160px] overflow-auto">
+            <div class="flex items-center mb-2">
+                <span class="text-lg font-bold">&lt;/&gt;</span>
+            </div>
+            <pre id="svg-output" class="bg-transparent text-xs whitespace-pre-wrap"></pre>
+            </div>
+        </div>
+        </div>
+    </div>
   </main>
 
   <script>
   //@ts-nocheck
-  document.addEventListener('DOMContentLoaded', () => {
-    let promptList = [];
-    const svgContainer = document.getElementById("svg-container");
-    const svgOutputEl = document.getElementById("svg-output");
-    const sendButton = document.getElementById("send-button");
-    const userPrompt = document.getElementById("user-prompt");
-    const aiBubbleText = document.getElementById("ai-bubble-text");
-    const userBubble = document.getElementById("user-bubble");
-    const saveButton = document.getElementById("save-svg");
-    const svgName = document.getElementById("svg-name");
+  let promptList = [];
+  const svgContainer = document.getElementById("svg-container");
+  const svgOutputEl = document.getElementById("svg-output");
+  const generateButton = document.getElementById("generate-button");
+  const editButton = document.getElementById("edit-button");
+  const saveButton = document.getElementById("save-svg");
 
-    async function generateSVG(prompt) {
-      const res = await fetch('/api/generateSVG', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: prompt }),
+  async function generateSVG(prompt) {
+    const res = await fetch('/api/generateSVG', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify( prompt ),
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  async function handleGenerate() {
+    const promptInput = document.getElementById("user-prompt");
+    const prompt = promptInput?.value || "";
+    if (!prompt) { alert("Entrez un prompt."); return; }
+
+    promptList = [{ role: "user", content: prompt }];
+    svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
+    generateButton.disabled = true;
+
+    const aiRes = await generateSVG(promptList);
+    const svgObj = aiRes.svg || aiRes;
+    const content = (svgObj?.content || svgObj || "").toString();
+    const match = content.match(/<svg[\s\S]*?<\/svg>/i);
+    const svgCode = match ? match[0] : content;
+
+    svgOutputEl.textContent = svgCode;
+    svgContainer.innerHTML = svgCode;
+    promptList.push({ role: "assistant", content: svgCode });
+
+    generateButton.disabled = false;
+
+    const name = document.getElementById("svg-name").value;
+    if (name) {
+      await saveSVGToServer({ nom_model: name, svg_code: svgCode, chat_history: JSON.stringify(promptList) });
+    }
+  }
+
+  async function handleEdit() {
+    const promptInput = document.getElementById("user-prompt");
+    const prompt = promptInput?.value || "";
+    if (!prompt) { alert("Entrez un prompt pour éditer."); return; }
+
+    promptList.push({ role: "user", content: prompt });
+    svgContainer.innerHTML += `<span class="loading loading-ring loading-xl"></span>`;
+    generateButton.disabled = true;
+    editButton.disabled = true;
+
+    const aiRes = await generateSVG(promptList);
+    const svgObj = aiRes.svg || aiRes;
+    const content = (svgObj?.content || svgObj || "").toString();
+    const match = content.match(/<svg[\s\S]*?<\/svg>/i);
+    const svgCode = match ? match[0] : content;
+
+    svgOutputEl.textContent = svgCode;
+    svgContainer.innerHTML = svgCode;
+    promptList.push({ role: "assistant", content: svgCode });
+
+    generateButton.disabled = false;
+    editButton.disabled = false;
+  }
+
+  async function saveSVGToServer(payload) {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || 'null');
+      const body = {
+        nom_model: payload.nom_model,
+        svg_code: payload.svg_code,
+        date: new Date().toISOString(),
+        users: user?.id ? user.id : null,
+        chat_history: payload.chat_history || null
+      };
+      const res = await fetch("/api/saveSVG", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
+        body: JSON.stringify(body)
       });
       return await res.json();
+    } catch (err) {
+      console.error("Save error", err);
+      return { success: false, error: String(err) };
     }
+  }
 
-    async function saveSVGToServer(payload) {
-      try {
-        const user = JSON.parse(localStorage.getItem("user") || 'null');
-        const body = {
-          nom_model: payload.nom_model,
-          svg_code: payload.svg_code,
-          date: new Date().toISOString(),
-          users: user?.id ? [user.id] : [],
-          chat_history: payload.chat_history || null
-        };
-        const res = await fetch("/api/saveSVG", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: 'include',
-          body: JSON.stringify(body)
-        });
-        return await res.json();
-      } catch (err) {
-        console.error("Save error", err);
-        return { success: false, error: String(err) };
-      }
-    }
+  if (generateButton) generateButton.addEventListener("click", handleGenerate);
+  if (editButton) editButton.addEventListener("click", handleEdit);
 
-    async function handleGenerate() {
-      const prompt = (userPrompt?.value || "").trim();
-      if (!prompt) { alert("Entrez un prompt."); return; }
-
-      // show user bubble (question)
-      userBubble.textContent = prompt;
-      userBubble.classList.remove('hidden');
-
-      // show AI loading text
-      aiBubbleText.textContent = 'Génération en cours…';
-
-      promptList = [{ role: "user", content: prompt }];
-      svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
-      sendButton.disabled = true;
-
-      try {
-        const aiRes = await generateSVG(promptList);
-        const svgObj = aiRes.svg || aiRes;
-        const content = (svgObj?.content || svgObj || "").toString();
-        const match = content.match(/<svg[\s\S]*?<\/svg>/i);
-        const svgCode = match ? match[0] : content;
-
-        // update code + preview
-        svgOutputEl.textContent = svgCode;
-        svgContainer.innerHTML = svgCode;
-        promptList.push({ role: "assistant", content: svgCode });
-
-        // set AI bubble text if provided by response, else generic
-        const aiText = (aiRes.text || aiRes.summary || aiRes.message || '').toString().trim();
-        aiBubbleText.textContent = aiText || 'Voici votre aperçu — vous pouvez modifier ou enregistrer.';
-      } catch (err) {
-        console.error(err);
-        aiBubbleText.textContent = 'Erreur lors de la génération.';
-      } finally {
-        sendButton.disabled = false;
-      }
-
-      // auto-save if name provided
-      const name = svgName?.value?.trim();
-      if (name) {
-        await saveSVGToServer({ nom_model: name, svg_code: svgOutputEl.textContent, chat_history: JSON.stringify(promptList) });
-      }
-    }
-
-    // events
-    if (sendButton) sendButton.addEventListener("click", handleGenerate);
-    if (userPrompt) userPrompt.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); handleGenerate(); }
+  if (saveButton) {
+    saveButton.addEventListener("click", async () => {
+      const name = document.getElementById("svg-name").value;
+      const code = document.getElementById("svg-output")?.textContent;
+      if (!name || !code) { alert("Veuillez entrer un nom et générer un SVG avant d'enregistrer."); return; }
+      const result = await saveSVGToServer({ nom_model: name, svg_code: code, chat_history: JSON.stringify(promptList) });
+      if (result.success) alert("SVG enregistré !");
+      else alert("Erreur lors de l'enregistrement : " + (result.error || "unknown"));
     });
-
-    if (saveButton) {
-      saveButton.addEventListener("click", async () => {
-        const name = svgName?.value?.trim();
-        const code = svgOutputEl?.textContent;
-        if (!name || !code) { alert("Veuillez entrer un nom et générer un SVG avant d'enregistrer."); return; }
-        const result = await saveSVGToServer({ nom_model: name, svg_code: code, chat_history: JSON.stringify(promptList) });
-        if (result.success) alert("SVG enregistré !");
-        else alert("Erreur lors de l'enregistrement : " + (result.error || "unknown"));
-      });
-    }
-  });
+  }
   </script>
 </Layout>

@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+import PocketBase from 'pocketbase';
+import Lunette from '../../public/SVG/lunette.svg';
+import Custom from '../../public/image/lunette-custom.webp';
+import { Image } from 'astro:assets';
+import HeroImage from '../../public/image/fond.webp';
+import type { LunetteResponse } from '../utils/pocketbase-types';
+
+// server-side fetch from PocketBase
+const pb = new PocketBase(import.meta.env.PB_URL || 'http://127.0.0.1:8090');
+const lunettes = await pb.collection('Lunette').getFullList<LunetteResponse>({ sort: '-created' });
+---
+<Layout>
+	<section class="relative w-full h-150">
+		<Image
+		src={HeroImage}
+		alt="Hero Image"
+		class="absolute inset-0 w-full h-full object-cover"
+		priority
+		/>
+		<!-- primary overlay -->
+		<div class="absolute inset-0 bg-primary/75 mix-blend-multiply pointer-events-none"></div>
+
+			<!-- centered content -->
+		<div class="relative z-10 max-w-4xl mx-auto h-full flex flex-col items-center justify-center px-6 text-center">
+			<h1 class="font-Playfair-Display text-4xl md:text-6xl lg:text-7xl text-neutral leading-tight italic">
+				Monture personalisable !
+			</h1>
+			<p class="mt-4 text-sm md:text-lg text-neutral/85 max-w-2xl">
+				A vous de créer les lunettes qui vous ressemblent
+			</p> 
+		</div>
+  	</section>
+
+	<section class="bg-transparent py-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-lg font-semibold mb-6">Choisi ton modèle</h2>
+
+            <div class="flex justify-start mt-8">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-start">
+
+					<article class="w-58 card bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition ">
+						<figure class="h-56 overflow-hidden bg-base-200 p-5">
+						<Lunette class="w-full h-full object-cover rounded-xl" />
+						</figure>
+					<div class="p-4 text-strat">
+						<h3 class="text-base font-Manrope">Édition Limitée</h3>
+						<a href="/custom" class="text-sm text-primary mt-2 font-semibold">129,99€</a>
+					</div>
+					</article>
+
+					<article class="card bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition">
+					<a href="/bibliotheque" class="block">
+						<figure class="h-56 overflow-hidden relative ">
+							<Image src={Custom} alt="Lunette Custom" class="w-full h-full object-cover rounded-xl" />
+						</figure>
+					</a>
+					<div class="p-4 text-start">
+						<h3 class="text-base">Ta paire</h3>
+						<a href="/generator" class="text-sm text-primary font-semibold mt-2">à partir de 99.99€</a>
+					</div>
+					</article>
+
+				</div>
+			</div>
+        </div>
+    </section>
+
+   
+    <section class="max-w-6xl mx-auto px-6 py-12 ">
+		<h1 class="text-2xl font-Playfair-Display mb-6">Ma bibliothèque</h1>
+		<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+			{lunettes.map((item) => {
+				// PocketBase svg_code peut contenir des échappements/retours à la ligne -> s'assurer d'une string propre
+				const svgString = typeof item.svg_code === 'string'
+				? item.svg_code.replace(/\\n/g, '\n')
+				: (item.svg_code ? String(item.svg_code) : '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+
+				// utiliser date personnalisé si présent, sinon la date de création système
+				const displayDate = item.date ?? item.created;
+
+				return (
+				<Card svg={svgString} name={item.nom_model ?? 'Sans nom'} date={displayDate} />
+				);
+			})}
+		</div>
+     	 
+    </section>
+
+    {lunettes.length === 0 && (
+      <p class="mt-8 text-center text-neutral/70">Aucune création trouvée dans la bibliothèque.</p>
+    )}
+</Layout>
