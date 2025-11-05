@@ -1,5 +1,5 @@
 ---
-const { svg = '<svg xmlns="http://www.w3.org/2000/svg"></svg>', name = 'Sans nom', date = null } = Astro.props;
+const { svg = '<svg xmlns="http://www.w3.org/2000/svg"></svg>', name = 'Sans nom', date = null, id = null } = Astro.props;
 
 function formatDate(d) {
   if (!d) return '';
@@ -22,7 +22,11 @@ function formatDate(d) {
     <p class="text-xs text-base/70 mb-3">{formatDate(date)}</p>
 
     <div class="flex gap-2">
-      <button class="btn btn-sm btn-outline btn-primary flex-1">Voir</button>
+      {id ? (
+        <a href={`/${id}`} class="btn btn-sm btn-outline btn-primary flex-1" aria-label={`Voir ${name}`}>Voir</a>
+      ) : (
+        <button class="btn btn-sm btn-outline btn-primary flex-1">Voir</button>
+      )}
       <button class="btn btn-sm btn-ghost">Télécharger</button>
     </div>
   </div>

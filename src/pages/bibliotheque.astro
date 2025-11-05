@@ -73,21 +73,21 @@ const lunettes = await pb.collection('Lunette').getFullList<LunetteResponse>({ s
 		<h1 class="text-2xl font-Playfair-Display mb-6">Ma bibliothèque</h1>
 		<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 			{lunettes.map((item) => {
-				// PocketBase svg_code peut contenir des échappements/retours à la ligne -> s'assurer d'une string propre
-				const svgString = typeof item.svg_code === 'string'
+			// PocketBase svg_code peut contenir des échappements/retours à la ligne -> s'assurer d'une string propre
+			const svgString = typeof item.svg_code === 'string'
 				? item.svg_code.replace(/\\n/g, '\n')
 				: (item.svg_code ? String(item.svg_code) : '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
 
-				// utiliser date personnalisé si présent, sinon la date de création système
-				const displayDate = item.date ?? item.created;
+			// utiliser date personnalisé si présent, sinon la date de création système
+			const displayDate = item.date ?? item.created;
 
-				return (
-				<Card svg={svgString} name={item.nom_model ?? 'Sans nom'} date={displayDate} />
-				);
+			return (
+				// passe l'id au composant Card pour que le bouton "Voir" renvoie vers /[id]
+				<Card id={item.id} svg={svgString} name={item.nom_model ?? 'Sans nom'} date={displayDate} />
+			);
 			})}
 		</div>
-     	 
-    </section>
+	</section>
 
     {lunettes.length === 0 && (
       <p class="mt-8 text-center text-neutral/70">Aucune création trouvée dans la bibliothèque.</p>

@@ -1,0 +1,234 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import HeroImage from '../../public/image/fond.webp';
+import PocketBase from 'pocketbase';
+
+const { id } = Astro.params;
+
+let svgData = null;
+try {
+  if (typeof id !== 'string') throw new Error('Invalid id');
+  const pb = new PocketBase(import.meta.env.PB_URL || 'http://127.0.0.1:8090');
+  svgData = await pb.collection('Lunette').getOne(id);
+} catch (e) {
+  svgData = null;
+}
+
+// normalize fields for rendering
+const svgString = svgData?.svg_code
+  ? (typeof svgData.svg_code === 'string' ? svgData.svg_code.replace(/\\n/g, '\n') : String(svgData.svg_code))
+  : '<svg xmlns="http://www.w3.org/2000/svg"></svg>';
+
+const initialName = svgData?.nom_model ?? '';
+let initialHistory = [];
+try {
+  if (svgData?.chat_history) {
+    initialHistory = typeof svgData.chat_history === 'string' ? JSON.parse(svgData.chat_history) : svgData.chat_history;
+  }
+} catch {
+  initialHistory = [];
+}
+
+// safe JSON for embedding in <script> (escape "<" to avoid </script> injection)
+const initialHistoryJson = JSON.stringify(initialHistory || []).replace(/</g, '\\u003c');
+const recordIdJson = JSON.stringify(svgData?.id ?? null);
+--- 
+<Layout>
+  <main class="relative w-full min-h-screen bg-[url('/image/fond.webp')] bg-cover bg-center font-Manrope">
+    <Image src={HeroImage} alt="Hero Image" class="absolute inset-0 w-full h-full object-cover" priority />
+    <div class="absolute inset-0 bg-primary/60 mix-blend-multiply pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-6xl mx-auto pt-24 px-6 pb-16">
+      <h1 class="font-Playfair-Display text-3xl md:text-4xl lg:text-5xl text-neutral text-center mb-8">
+        Personnaliser Vos lunettes à votre image avec l'IA !
+      </h1>
+
+      <div class="mx-auto bg-white/85 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-4xl">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <!-- Left: inputs + preview (spans 2 cols) -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- AI bubble (top-right) -->
+            <div class="flex justify-end">
+              <div id="ai-bubble" class="flex items-center gap-3 bg-secondary text-secondary-content rounded-md px-4 py-3 shadow">
+                <div id="ai-bubble-text" class="text-sm">En attente...</div>
+              </div>
+            </div>
+
+            <!-- Prompt input -->
+            <form class="w-full" onsubmit="event.preventDefault();">
+              <div class="flex gap-4 items-center">
+                <input id="user-prompt" type="text"
+                  class="input input-bordered flex-1 rounded-full h-12 px-4 bg-secondary/30 placeholder:text-base/70"
+                  placeholder="Décris la paire de lunettes à générer (ex : monture ronde dorée, verres bleus)" />
+                <div class="flex flex-col">
+                  <button id="generate-button" type="button" class="btn btn-primary px-6">Générer</button>
+                </div>
+              </div>
+            </form>
+
+            <!-- SVG preview -->
+            <div class="bg-primary/40 from-base-200 to-base-100 rounded-xl flex items-center justify-center min-h-[280px] border border-base-200 overflow-hidden">
+              <div id="svg-container" class="w-full h-full flex items-center justify-center p-6" set:html={svgString}></div>
+            </div>
+
+            <!-- name + save -->
+            <div class="md:flex-row gap-4 items-center mt-4 flex">
+              <div class="flex-1">
+                <input id="svg-name" type="text" class="input input-bordered w-full" placeholder="Nom du modèle" value={initialName} />
+              </div>
+              <div class="flex-col gap-4 ml-4">
+                <button id="save-svg" type="button" class="btn btn-secondary w-full md:w-auto">Enregistrer</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: actions / commande -->
+          <div class="space-y-2">
+            <div>
+              <h4 class="font-Manrope">Prix : En fonction des options choisies</h4>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-4 flex flex-col items-start gap-4">
+              <div class="gap-2">
+                <div class="text-sm text-base/80">Ta création te convient ?</div>
+                <a class="text-sm text-primary/90">Passe commande !!</a>
+              </div>
+              <button id="add-to-cart" class="btn btn-primary w-full flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 6h12l-2-6M10 21a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+                Ajouter au panier
+              </button>
+            </div>
+
+            <div class="text-xs text-base/70">
+              <p>Informations : livraison sous 2-3 semaines</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden max-w-4xl mx-auto mt-8">
+        <div class="bg-[#3b2179] rounded-xl p-6 text-white min-h-[160px] overflow-auto">
+          <div class="flex items-center mb-2">
+            <span class="text-lg font-bold">&lt;/&gt; Historique</span>
+          </div>
+
+          <div id="chat-history" class="space-y-4">
+            {initialHistory.length === 0 ? (
+              <div class="text-sm text-neutral/70">Aucun historique.</div>
+            ) : (
+              initialHistory.map((m) => (
+                <div class={`chat ${m.role === 'user' ? 'chat-start' : 'chat-end'}`}>
+                  <div class={`chat-bubble ${m.role === 'user' ? 'bg-primary text-primary-content' : 'bg-secondary text-secondary-content'}`}>
+                    <pre class="whitespace-pre-wrap">{m.content}</pre>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <pre id="svg-output" class="bg-transparent text-xs whitespace-pre-wrap mt-6" hidden></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  //@ts-nocheck
+  (function () {
+    // safe parse of server-side history json
+    let promptList = JSON.parse('{initialHistoryJson}');
+    const recordId = {recordIdJson};
+
+    const svgContainer = document.getElementById("svg-container");
+    const svgOutputEl = document.getElementById("svg-output");
+    const generateButton = document.getElementById("generate-button");
+    const saveButton = document.getElementById("save-svg");
+    const userPrompt = document.getElementById("user-prompt");
+    const aiBubbleText = document.getElementById("ai-bubble-text");
+    const userBubble = document.getElementById("user-bubble");
+    const svgName = document.getElementById("svg-name");
+    const chatHistoryDiv = document.getElementById("chat-history");
+
+    async function generateSVG(prompt) {
+      const res = await fetch('/api/generateSVG', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prompt),
+      });
+      const data = await res.json();
+      return data;
+    }
+
+    async function updateRemote(payload) {
+      const res = await fetch('/api/updateSVG', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return res.json();
+    }
+
+    async function handleGenerate() {
+      const prompt = (userPrompt?.value || "").trim();
+      if (!prompt) { alert("Entrez un prompt."); return; }
+
+      if (userBubble) { userBubble.textContent = prompt; userBubble.classList.remove('hidden'); }
+      if (aiBubbleText) aiBubbleText.textContent = 'Génération en cours…';
+
+      promptList.push({ role: 'user', content: prompt });
+      if (svgContainer) svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
+      generateButton.disabled = true;
+
+      try {
+        const aiRes = await generateSVG(promptList);
+        const svgObj = aiRes.svg || aiRes;
+        const content = (svgObj?.content || svgObj || '').toString();
+        const match = content.match(/<svg[\s\S]*?<\/svg>/i);
+        const svgCode = match ? match[0] : content;
+
+        if (svgOutputEl) svgOutputEl.textContent = svgCode;
+        if (svgContainer) svgContainer.innerHTML = svgCode;
+        promptList.push({ role: 'assistant', content: svgCode });
+
+        if (chatHistoryDiv) {
+          chatHistoryDiv.innerHTML += `
+            <div class="chat chat-start">
+              <div class="chat-bubble bg-primary text-primary-content"><pre class="whitespace-pre-wrap">${prompt}</pre></div>
+            </div>
+            <div class="chat chat-end">
+              <div class="chat-bubble bg-secondary text-secondary-content"><pre class="whitespace-pre-wrap">${svgCode}</pre></div>
+            </div>
+          `;
+        }
+
+        if (aiBubbleText) aiBubbleText.textContent = 'Génération terminée.';
+      } catch (err) {
+        console.error(err);
+        if (aiBubbleText) aiBubbleText.textContent = 'Erreur lors de la génération.';
+      } finally {
+        generateButton.disabled = false;
+      }
+
+      const name = svgName?.value?.trim();
+      if (name && svgOutputEl?.textContent) {
+        await updateRemote({ id: recordId, svg_code: svgOutputEl.textContent, chat_history: JSON.stringify(promptList), nom_model: name });
+      }
+    }
+
+    if (generateButton) generateButton.addEventListener('click', handleGenerate);
+    if (userPrompt) userPrompt.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerate(); } });
+
+    if (saveButton) {
+      saveButton.addEventListener('click', async () => {
+        const name = svgName?.value?.trim();
+        const code = svgOutputEl?.textContent || (svgContainer?.innerHTML || '').toString();
+        if (!name || !code) { alert('Veuillez entrer un nom et générer un SVG avant enregistrer.'); return; }
+        const result = await updateRemote({ id: recordId, svg_code: code, chat_history: JSON.stringify(promptList), nom_model: name });
+        if (result?.success) alert('SVG mis à jour !');
+        else alert('Erreur lors de la mise à jour : ' + (result?.error || 'unknown'));
+      });
+    }
+  })();
+  </script>
+</Layout>
