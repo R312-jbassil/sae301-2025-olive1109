@@ -23,16 +23,14 @@ export const onRequest = async (context, next) => {
         }
     }
 
-    // Pour les routes API, on exige l'authentification sauf pour certaines routes publiques
-    if (context.url.pathname.startsWith('/api/')) {
-        // Liste d'API publiques qui ne nécessitent pas d'authentification
+    // Pour les routes js, on exige l'authentification sauf pour certaines routes publiques
+    if (context.url.pathname.startsWith('/js/')) {
+        // Liste d'js publiques qui ne nécessitent pas d'authentification
         const publicApis = [
-            '/api/login',
-            '/api/register',
-            '/api/logout',
-            '/api/generateSVG',
-            '/api/me',
-            '/api/debug-auth'
+            '/js/login',
+            '/js/register',
+            '/js/logout',
+            '/js/generateSVG',
         ];
 
         if (!context.locals.user && !publicApis.includes(context.url.pathname)) {
@@ -53,7 +51,7 @@ export const onRequest = async (context, next) => {
     // Cette fonction middleware s'exécute à chaque requête.
     // context = infos de la requête (URL, cookies, méthode...)
     // next() = continue le traitement normal (afficher la page demandée)
-    if (context.url.pathname.startsWith('/api/')) {
+    if (context.url.pathname.startsWith('/js/')) {
         return next();
     }
     // Si la requête est un POST (soumission du formulaire de langue) :

@@ -18,7 +18,7 @@ import { Image } from 'astro:assets';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 items-center">
           <!-- left : preview -->
           <div class="flex flex-col items-center md:items-start gap-4">
-            <div class="text-sm text-slate-600">Prix : <span class="font-semibold text-blue-700">120€</span></div>
+            <div id="priceContainer" class="text-sm text-slate-600">Prix : <span id="prixValue" class="font-semibold text-blue-700">120€</span></div>
 
             <div id="lunette" class="w-80 h-72 flex items-center justify-center">
               <Lunette />
@@ -50,11 +50,89 @@ import { Image } from 'astro:assets';
   </main>
 </Layout>
 
+<script type="module">
+  // client-side: collecte les couleurs choisies par le composant Select et envoie la lunette au serveur
+  const { pb } = await import('/lib/pb.js'); // client PocketBase (public lib)
+
+  const selected = { monture: null, branches: null, verres: null };
+  // écoute l'événement custom dispatché par Select (detail: { part, color })
+  document.addEventListener('colorchange', (e) => {
+    try {
+      const { part, color } = e.detail || {};
+      if (!part) return;
+      // normalisation: le composant peut utiliser 'branches' ou 'branche'
+      if (part === 'branches' || part === 'branche') selected.branches = color;
+      else if (part === 'monture') selected.monture = color;
+      else if (part === 'verres' || part === 'verre') selected.verres = color;
+    } catch (err) { console.warn(err); }
+  });
+
+  function getPrixNumber() {
+    const el = document.getElementById('prixValue');
+    if (!el) return null;
+    const txt = el.textContent || '';
+    const m = txt.replace(/\s/g, '').match(/([\d.,]+)/);
+    if (!m) return null;
+    return Number(m[1].replace(',', '.')) || null;
+  }
+
+  function serializeSVG() {
+    const container = document.getElementById('lunette');
+    if (!container) return null;
+    const svg = container.querySelector('svg');
+    if (!svg) return null;
+    // embed width/height computed values to preserve appearance
+    svg.setAttribute('width', svg.getAttribute('width') || svg.clientWidth || 'auto');
+    svg.setAttribute('height', svg.getAttribute('height') || svg.clientHeight || 'auto');
+    return svg.outerHTML;
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement…';
+
+    const svg = serializeSVG();
+    const prix = getPrixNumber();
+    const payload = {
+      prix,
+      monture: selected.monture,
+      branche: selected.branches || null,
+      verre: selected.verres || null,
+      svg,
+      userId: pb?.authStore?.model?.id || null
+    };
+
+    try {
+      const res = await fetch('/api/save-lunette', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (res.ok && json?.success) {
+        btn.textContent = 'Enregistré';
+        setTimeout(() => { btn.textContent = 'Enregistrer'; }, 1200);
+      } else {
+        console.error('save error', json);
+        alert('Erreur lors de l\'enregistrement : ' + (json?.error || res.status));
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erreur réseau pendant l\'enregistrement.');
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer';
+    }
+  });
+</script>
+
 <style>
-/* petites adaptations locales si tu n'utilises pas tailwind full : */
-.btn { display:inline-flex; align-items:center; justify-content:center; padding:0.6rem 1rem; border-radius:0.5rem; }
-.btn-primary { background:#2b6cb0; color:#fff; border:none; }
-.btn-warning { background:#f6c23e; color:#111827; border:none; }
-.bg-white\/85 { background-color: rgba(255,255,255,0.85); }
-.backdrop-blur-sm { backdrop-filter: blur(6px); }
+  /* petites adaptations locales si tu n'utilises pas tailwind full : */
+  .btn { display:inline-flex; align-items:center; justify-content:center; padding:0.6rem 1rem; border-radius:0.5rem; }
+  .btn-primary { background:#2b6cb0; color:#fff; border:none; }
+  .btn-warning { background:#f6c23e; color:#111827; border:none; }
+  .bg-white\/85 { background-color: rgba(255,255,255,0.85); }
+  .backdrop-blur-sm { backdrop-filter: blur(6px); }
 </style>
