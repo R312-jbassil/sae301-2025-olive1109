@@ -38,7 +38,7 @@ import HeroImage from '../../public/image/fond.webp';
                 <!-- name + save -->
                 <div class="md:flex-row gap-4 items-center mt-4">
                     <div class="flex-1">
-                        <label class="text-sm text-base/80 block mb-1">Donne un nom à ta création pour y revenir plus tard</label>
+                        <label class="text-sm block mb-1">Donne un nom à ta création pour y revenir plus tard</label>
                     </div>
                     <div class="flex-col gap-4">
                         <input id="svg-name" type="text" class="input input-bordered w-auto" placeholder="Nom du modèle"/>
@@ -51,12 +51,12 @@ import HeroImage from '../../public/image/fond.webp';
             <div class="space-y-2">
 
                 <div>
-                    <h4 class="font-Manrope">Prix : En fonction des options choisies</h4>
+                    <h4 class="text-m font-Manrope">Prix : En fonction des options choisies</h4>
                 </div>
 
                 <div class="bg-white rounded-lg shadow p-4 flex flex-col items-start gap-4">
                     <div class="gap-2">
-                        <div class="text-sm text-base/80">Ta création te convient ?</div>
+                        <div class="text-sm">Ta création te convient ?</div>
                         <a class="text-sm text-primary/90">Passe commande !!</a>
                     </div>
                     <button id="add-to-cart" class="btn btn-primary w-full flex items-center justify-center gap-2">
@@ -64,7 +64,7 @@ import HeroImage from '../../public/image/fond.webp';
                         Ajouter au panier
                     </button>
                 </div>
-                <div class="text-xs text-base/70">
+                <div class="text-xs">
                     <p>Informations : livraison sous 2-3 semaines</p>
                 </div>
             </div>
@@ -94,7 +94,7 @@ import HeroImage from '../../public/image/fond.webp';
   const saveButton = document.getElementById("save-svg");
 
   async function generateSVG(prompt) {
-    const res = await fetch('/api/generateSVG', {
+    const res = await fetch('/js/generateSVG', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify( prompt ),
@@ -164,7 +164,7 @@ import HeroImage from '../../public/image/fond.webp';
         users: user?.id ? user.id : null,
         chat_history: payload.chat_history || null
       };
-      const res = await fetch("/api/saveSVG", {
+      const res = await fetch("/js/saveSVG", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',

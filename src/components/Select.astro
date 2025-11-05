@@ -1,0 +1,200 @@
+---
+const {
+  svgSelector = '#lunette',
+  parts = ['monture', 'branches', 'verres'],
+  swatches = [
+    '#000000', '#0b68ff', '#ffd24d', '#ffffff', '#c4a484',
+    '#e6e6e6', '#8b5e3c', '#8b0000', '#2b3a67', '#b22222',
+    '#f4c7b8', '#efe3cc'
+  ]
+} = Astro.props;
+---
+<div class="color-selector bg-base-200/90 rounded-lg p-5 shadow-lg text-neutral max-w-lg mx-auto"
+     data-svg-selector={svgSelector}
+     data-parts={parts.join(',')}>
+
+  <header class="relative mb-4 flex items-center justify-between">
+    <button class="nav-btn js-prev" aria-label="Précédent">‹</button>
+    <h3 class="text-lg font-semibold text-primary js-title">Monture</h3>
+    <button class="nav-btn js-next" aria-label="Suivant">›</button>
+  </header>
+
+  <p class="text-sm text-base-content/70 mb-3 text-center js-subtitle">Choisissez une couleur :</p>
+
+  <div class="swatches grid grid-cols-5 gap-3 justify-items-center mb-4" role="list">
+    {swatches.map(color => (
+      <button
+        class="swatch w-10 h-10 rounded-full border-2 border-base-300 shadow-sm transition hover:scale-105"
+        data-color={color}
+        style={`background:${color}`}
+        type="button"
+        aria-label={color}
+      ></button>
+    ))}
+  </div>
+
+  <div class="flex items-center justify-center gap-3 mb-3">
+    <div class="part-dots flex items-center gap-2" aria-hidden></div>
+  </div>
+
+  <p class="text-xs text-center mt-2 js-selected">Sélectionnée : —</p>
+</div>
+
+<script client:load>
+  (function () {
+    const root = document.currentScript.previousElementSibling;
+    if (!root) return;
+
+    const svgSelector = root.dataset.svgSelector || '#lunette';
+    const parts = (root.dataset.parts || '').split(',').filter(Boolean);
+    let currentPartIndex = 0;
+
+    const titleEl = root.querySelector('.js-title');
+    const subtitleEl = root.querySelector('.js-subtitle');
+    const selectedEl = root.querySelector('.js-selected');
+    const prevBtn = root.querySelector('.js-prev');
+    const nextBtn = root.querySelector('.js-next');
+    const swatchButtons = Array.from(root.querySelectorAll('.swatch'));
+    const dotsContainer = root.querySelector('.part-dots');
+
+    function getSvgElement() {
+      const container = document.querySelector(svgSelector);
+      if (!container) return null;
+      if (container.tagName && container.tagName.toLowerCase() === 'svg') return container;
+      return container.querySelector && container.querySelector('svg') || null;
+    }
+
+    function getTargetsForPart(part) {
+      const svg = getSvgElement();
+      if (!svg) return [];
+      // strict: prefer the group with matching id, fallback to searching whole svg for safety
+      const group = svg.querySelector(`#${part}`);
+
+      if (part === 'monture' || part === 'branches') {
+        // target both cls-2 and cls-4 (présents dans ton SVG pour monture/branches)
+        if (group) return Array.from(group.querySelectorAll('.cls-2, .cls-4'));
+        return Array.from(svg.querySelectorAll('.cls-2, .cls-4'));
+      }
+
+      if (part === 'verres') {
+        // verres: only change fill (cls-5) — do not touch stroke (cls-1)
+        if (group) return Array.from(group.querySelectorAll('.cls-5'));
+        return Array.from(svg.querySelectorAll('.cls-5'));
+      }
+
+      return [];
+    }
+
+    function applyColorToTargets(targets, color) {
+      if (!targets || targets.length === 0) {
+        console.debug('[Select] no targets found for part', parts[currentPartIndex]);
+        return;
+      }
+      targets.forEach(el => {
+        try {
+          // prefer setting attribute + style to override inline style attributes
+          if (el.classList.contains('cls-2') || el.classList.contains('cls-4')) {
+            // monture/branches: set fill and stroke when present
+            if (el.hasAttribute('fill')) el.setAttribute('fill', color);
+            else el.style.fill = color;
+            if (el.hasAttribute('stroke')) el.setAttribute('stroke', color);
+          } else if (el.classList.contains('cls-5')) {
+            // verres fill only
+            if (el.hasAttribute('fill')) el.setAttribute('fill', color);
+            else el.style.fill = color;
+          } else {
+            // generic fallback: change fill
+            if (el.hasAttribute('fill')) el.setAttribute('fill', color);
+            else el.style.fill = color;
+          }
+        } catch (e) { /* ignore DOM errors */ }
+      });
+    }
+
+    function clearSwatchSelection() {
+      Array.from(root.querySelectorAll('.swatch')).forEach(b => {
+        b.classList.remove('ring-2', 'ring-primary');
+        b.style.outline = '';
+      });
+    }
+
+    function selectColor(color) {
+      const part = parts[currentPartIndex];
+      const targets = getTargetsForPart(part);
+      applyColorToTargets(targets, color);
+      clearSwatchSelection();
+      const btn = Array.from(root.querySelectorAll('.swatch')).find(b => b.dataset.color === color);
+      if (btn) {
+        btn.classList.add('ring-2', 'ring-primary');
+        btn.style.outline = 'none';
+      }
+      if (selectedEl) selectedEl.textContent = `Sélectionnée : ${color}`;
+    }
+
+    function renderDots() {
+      dotsContainer.innerHTML = '';
+      parts.forEach((p, idx) => {
+        const d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'dot w-3 h-3 rounded-full';
+        d.style.background = idx === currentPartIndex ? '#2b6cb0' : 'rgba(0,0,0,0.18)';
+        d.style.border = 'none';
+        d.style.cursor = 'pointer';
+        d.title = p;
+        d.addEventListener('click', () => {
+          currentPartIndex = idx;
+          updatePartUI();
+        });
+        dotsContainer.appendChild(d);
+      });
+    }
+
+    function updatePartUI() {
+      const part = parts[currentPartIndex];
+      titleEl.textContent = part.charAt(0).toUpperCase() + part.slice(1);
+      subtitleEl && (subtitleEl.textContent = `Choisissez une couleur pour la ${part}`);
+      renderDots();
+      clearSwatchSelection();
+      if (selectedEl) selectedEl.textContent = 'Sélectionnée : —';
+    }
+
+    // attach handlers
+    swatchButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectColor(btn.dataset.color);
+      });
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentPartIndex = (currentPartIndex - 1 + parts.length) % parts.length;
+      updatePartUI();
+    });
+    nextBtn.addEventListener('click', () => {
+      currentPartIndex = (currentPartIndex + 1) % parts.length;
+      updatePartUI();
+    });
+
+    // init
+    updatePartUI();
+  })(); 
+</script>
+
+<style>
+.color-selector { position: relative; }
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111827;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s;
+}
+.nav-btn:hover { transform: scale(1.05); }
+.part-dots { display:flex; gap:8px; align-items:center; justify-content:center; }
+.dot { transition: background .12s; width:10px; height:10px; border-radius:9999px; }
+.swatch.ring-2 { box-shadow: 0 0 0 4px rgba(59,130,246,0.18); border-color: transparent !important; }
+</style>

@@ -151,7 +151,7 @@ const recordIdJson = JSON.stringify(svgData?.id ?? null);
     const chatHistoryDiv = document.getElementById("chat-history");
 
     async function generateSVG(prompt) {
-      const res = await fetch('/api/generateSVG', {
+      const res = await fetch('/js/generateSVG', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(prompt),
@@ -161,7 +161,7 @@ const recordIdJson = JSON.stringify(svgData?.id ?? null);
     }
 
     async function updateRemote(payload) {
-      const res = await fetch('/api/updateSVG', {
+      const res = await fetch('/js/updateSVG', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

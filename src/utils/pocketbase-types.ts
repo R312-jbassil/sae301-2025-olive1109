@@ -8,6 +8,7 @@ import type { RecordService } from 'pocketbase'
 export enum Collections {
 	Commande = "Commande",
 	Lunette = "Lunette",
+	LunettePersonalisees = "Lunette_personalisees",
 	Materiau = "Materiau",
 	Utilise = "Utilise",
 	Authorigins = "_authOrigins",
@@ -72,13 +73,22 @@ export type LunetteRecord<Tsvg_code = unknown> = {
 	users?: RecordIdString
 }
 
+export type LunettePersonaliseesRecord = {
+	couleur?: RecordIdString[]
+	created: IsoAutoDateString
+	id: string
+	prix?: number
+	updated: IsoAutoDateString
+	user?: RecordIdString
+}
+
 export enum MateriauTypeOptions {
-	"Montre" = "Montre",
 	"Branche" = "Branche",
 	"Verre" = "Verre",
+	"Monture" = "Monture",
 }
 export type MateriauRecord = {
-	Couleur?: string
+	code_couleur?: string
 	created: IsoAutoDateString
 	id: string
 	libelle?: string
@@ -159,6 +169,7 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type CommandeResponse<Texpand = unknown> = Required<CommandeRecord> & BaseSystemFields<Texpand>
 export type LunetteResponse<Tsvg_code = unknown, Texpand = unknown> = Required<LunetteRecord<Tsvg_code>> & BaseSystemFields<Texpand>
+export type LunettePersonaliseesResponse<Texpand = unknown> = Required<LunettePersonaliseesRecord> & BaseSystemFields<Texpand>
 export type MateriauResponse<Texpand = unknown> = Required<MateriauRecord> & BaseSystemFields<Texpand>
 export type UtiliseResponse<Texpand = unknown> = Required<UtiliseRecord> & BaseSystemFields<Texpand>
 export type AuthoriginsResponse<Texpand = unknown> = Required<AuthoriginsRecord> & BaseSystemFields<Texpand>
@@ -173,6 +184,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 export type CollectionRecords = {
 	Commande: CommandeRecord
 	Lunette: LunetteRecord
+	Lunette_personalisees: LunettePersonaliseesRecord
 	Materiau: MateriauRecord
 	Utilise: UtiliseRecord
 	_authOrigins: AuthoriginsRecord
@@ -186,6 +198,7 @@ export type CollectionRecords = {
 export type CollectionResponses = {
 	Commande: CommandeResponse
 	Lunette: LunetteResponse
+	Lunette_personalisees: LunettePersonaliseesResponse
 	Materiau: MateriauResponse
 	Utilise: UtiliseResponse
 	_authOrigins: AuthoriginsResponse
