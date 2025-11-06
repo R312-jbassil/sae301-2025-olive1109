@@ -48,39 +48,79 @@ import { Image } from 'astro:assets';
 </Layout>
 
 <script type="module">
-  const { pb } = await import('/lib/pb.js');
+  // adapted from register page script — client PocketBase import and UX handling
+  const msgEl = document.getElementById('msg');
+  function setMsg(text = '', isError = true) {
+    msgEl.textContent = text;
+    msgEl.style.color = isError ? '#ef4444' : '#064e3b';
+  }
 
-  const form = document.getElementById("loginForm");
-  form.onsubmit = async (e) => {
+  // dynamic import from public client lib (ensure public/lib/pb.js exists)
+  let pb;
+  try {
+    ({ pb } = await import('/lib/pb.js'));
+  } catch (err) {
+    console.error('failed to load client pb lib', err);
+    setMsg('Impossible de charger le client d\'authentification.', true);
+  }
+
+  const form = document.getElementById('loginForm');
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    try {
-      await pb.collection("users").authWithPassword(
-      form.email.value,
-      form.password.value
-      );
-      //verifiez si l'email est verifié
-      if(pb.authStore.isVerified === false) {
-      document.getElementById("msg").textContent =
-      "Veuillez vérifier votre email avant de continuer.";
-      return;
-      }
-      location.href = "/students";
-    } catch (err) {
-      document.getElementById("msg").textContent = "Échec de connexion";
-      console.error(err);
-    }
-  };
+    setMsg('');
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.classList.add('opacity-70');
+    btn.textContent = 'Connexion…';
 
-  const googlelogin = document.getElementById("googlelogin");
-  googlelogin.onclick = async () => {
-    try {
-      await pb.collection("users").authWithOAuth2({ provider: 'google' });
-      location.href = "/students";
-    } catch (err) {
-      document.getElementById("msg").textContent = "Échec de connexion Google";
-      console.error(err);
+    const email = form.email.value.trim();
+    const password = form.password.value;
+
+    if (!email || !password) {
+      setMsg('Email et mot de passe requis', true);
+      btn.disabled = false;
+      btn.classList.remove('opacity-70');
+      btn.textContent = 'Se connecter';
+      return;
     }
-  };
+
+    try {
+      await pb.collection('users').authWithPassword(email, password);
+
+      // check verification flag on returned model if present
+      if (pb.authStore && pb.authStore.model && pb.authStore.model.verified === false) {
+        setMsg('Veuillez vérifier votre email avant de continuer.', true);
+        btn.disabled = false;
+        btn.classList.remove('opacity-70');
+        btn.textContent = 'Se connecter';
+        return;
+      }
+
+      setMsg('Connexion réussie. Redirection…', false);
+      // small delay for UX then redirect
+      setTimeout(() => window.location.href = '/students', 500);
+    } catch (err) {
+      console.error('login error', err);
+      const message = err?.data?.message || err?.message || 'Échec de connexion';
+      setMsg(message, true);
+      btn.disabled = false;
+      btn.classList.remove('opacity-70');
+      btn.textContent = 'Se connecter';
+    }
+  });
+
+  // OAuth button (Google) — uses client lib to start OAuth flow
+  const googleBtn = document.getElementById('googleLogin');
+  googleBtn?.addEventListener('click', async () => {
+    setMsg('');
+    try {
+      await pb.collection('users').authWithOAuth2({ provider: 'google' });
+      // PocketBase will redirect to provider and back
+    } catch (err) {
+      console.error('google oauth error', err);
+      setMsg('Échec connexion Google', true);
+    }
+  });
 </script> 
 
 <style>

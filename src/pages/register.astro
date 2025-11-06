@@ -77,23 +77,31 @@ import { Image } from 'astro:assets';
 
 <script type="module">
   // client-side import from public/lib/pb.js (do not import ../utils/pb.js here)
-  const { pb } = await import('../utils/pb');
-
+  // const { pb } = await import('/lib/pb.js'); // client PocketBase (public lib)
   const form = document.getElementById("registerForm");
   form.onsubmit = async (e) => {
     e.preventDefault();
     const email = form.email.value;
     const password = form.password.value;
     const passwordConfirm = form.passwordConfirm.value;
+    const name = form.firstname.value + form.name.value;
+
     try {
       console.log("Registering user:", email);
-      await pb.collection("users").create({
-        email,
-        password,
-        passwordConfirm
-      });
-      try { await pb.collection("users").requestVerification(email); } catch (_) {}
+      const resp = await fetch('/js/register', { method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, password, passwordConfirm })
+      }); // ensure logged out
+      const user = await resp.json();
+      console.log("User registered:", user);
+      // await pb.collection("users").create({
+      //   email,
+      //   password,
+      //   passwordConfirm
+      // });
+      // try { await pb.collection("users").requestVerification(email); } catch (_) {}
       document.getElementById("msg").textContent = "Inscription réussie, vérifiez vos emails";
+      window.location.href = '/';
     } catch (err) {
       document.getElementById("msg").textContent = "Échec de l'inscription";
       console.error(err);
